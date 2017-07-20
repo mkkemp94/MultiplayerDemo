@@ -19,7 +19,14 @@ server.listen(8080, function() {
 // It takes in a socket, which is the connection itself.
 io.on('connection', function(socket) {
 	console.log("Player Connected!");
-	
+
+	// Emit an event to the connected client
+	// When a client connects, its socket id will be sent to it.
+	socket.emit("socketID", {id : socket.id});
+
+	// Send it to everyone else.
+	socket.broadcast.emit("newPlayer", {id: socket.id});
+
 	// Listen for disconnect
 	socket.on('disconnect', function() {
 		console.log("Player disconnected");
