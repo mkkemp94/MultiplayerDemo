@@ -6,14 +6,18 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import io.socket.client.IO;
+
 public class MultiplayerDemo extends ApplicationAdapter {
 	SpriteBatch batch;
 	Texture img;
+	private io.socket.client.Socket socket;
 	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		img = new Texture("badlogic.jpg");
+		connectSocket();
 	}
 
 	@Override
@@ -29,5 +33,14 @@ public class MultiplayerDemo extends ApplicationAdapter {
 	public void dispose () {
 		batch.dispose();
 		img.dispose();
+	}
+
+	public void connectSocket() {
+		try {
+			socket = IO.socket("http://localhost:8080");
+			socket.connect();
+		} catch (Exception e) {
+			System.out.println(e);
+		}
 	}
 }
