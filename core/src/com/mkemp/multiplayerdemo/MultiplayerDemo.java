@@ -1,12 +1,12 @@
 package com.mkemp.multiplayerdemo;
 
-import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.mkemp.multiplayerdemo.screens.PlayScreen;
 import com.mkemp.multiplayerdemo.sprites.Starship;
 
 import org.json.JSONArray;
@@ -20,13 +20,13 @@ import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
 // TODO : Extend Game and use screens
-public class MultiplayerDemo extends ApplicationAdapter {
+public class MultiplayerDemo extends Game {
 
 	// Locally this is fine, but on an actual network 1/30 would be better.
-	private final float UPDATE_TIME = 1/60f;
+	public static final float UPDATE_TIME = 1/60f;
 	float timer;
 
-	SpriteBatch batch;
+	public SpriteBatch batch;
 
 	// This is the socket for multiplayer
 	private io.socket.client.Socket socket;
@@ -43,13 +43,17 @@ public class MultiplayerDemo extends ApplicationAdapter {
 	public void create () {
 		batch = new SpriteBatch();
 
-		playerShipTexture = new Texture("playerShip2.png");
-		friendlyShipTexture = new Texture("playerShip.png");
 
-		friendlyPlayersMap = new HashMap<String, Starship>();
+//		playerShipTexture = new Texture("playerShip2.png");
+//		friendlyShipTexture = new Texture("playerShip.png");
+//
+//		friendlyPlayersMap = new HashMap<String, Starship>();
 
-		connectSocket();
-		configSocketEvents();
+//		connectSocket();
+//		configSocketEvents();
+
+		setScreen(new PlayScreen(this));
+
 	}
 
 	/**
@@ -90,31 +94,32 @@ public class MultiplayerDemo extends ApplicationAdapter {
 
 	@Override
 	public void render () {
-		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		handleInput(Gdx.graphics.getDeltaTime());
-		updateServer(Gdx.graphics.getDeltaTime());
-
-		batch.begin();
-
-		// Draw the player starship if exists
-		if (playerStarship != null) {
-			playerStarship.draw(batch);
-		}
-
-		// Draw each friendly starship that exists
-		for (HashMap.Entry<String, Starship> entry : friendlyPlayersMap.entrySet()) {
-			entry.getValue().draw(batch);
-		}
-
-		batch.end();
+		super.render();
+//		Gdx.gl.glClearColor(0, 0, 0, 1);
+//		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+//		handleInput(Gdx.graphics.getDeltaTime());
+//		updateServer(Gdx.graphics.getDeltaTime());
+//
+//		batch.begin();
+//
+//		// Draw the player starship if exists
+//		if (playerStarship != null) {
+//			playerStarship.draw(batch);
+//		}
+//
+//		// Draw each friendly starship that exists
+//		for (HashMap.Entry<String, Starship> entry : friendlyPlayersMap.entrySet()) {
+//			entry.getValue().draw(batch);
+//		}
+//
+//		batch.end();
 	}
 	
 	@Override
 	public void dispose () {
 		batch.dispose();
-		playerShipTexture.dispose();
-		friendlyShipTexture.dispose();
+//		playerShipTexture.dispose();
+//		friendlyShipTexture.dispose();
 	}
 
 	/**
