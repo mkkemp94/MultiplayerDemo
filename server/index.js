@@ -35,6 +35,25 @@ io.on('connection', function(socket) {
     socket.emit('getPlayers', players);
     console.log("Existing players array sent to new player.");
 
+    // Listen for player moved.
+    socket.on('playerMoved', function(data) {
+        data.id = socket.id;
+
+        // Broadcast to all other clients that this player moved.
+        socket.broadcast.emit('playerMoved', data);
+        console.log("playerMoved: " +
+                "ID: " + data.id +
+                "X: " + data.x +
+                "Y: " + data.y);
+
+        for (var i = 0; i < players.length; i++) {
+            if (players[i].id == data.id) {
+                players[i].x = data.x;
+                players[i].y = data.y;
+            }
+        }
+    });
+
 	// Listen for disconnect.
 	socket.on('disconnect', function() {
 		console.log("Player disconnected");

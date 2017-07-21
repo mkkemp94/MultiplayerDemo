@@ -21,6 +21,11 @@ import io.socket.emitter.Emitter;
 
 // TODO : Extend Game and use screens
 public class MultiplayerDemo extends ApplicationAdapter {
+
+	// Locally this is fine, but on an actual network 1/30 would be better.
+	private final float UPDATE_TIME = 1/60f;
+	float timer;
+
 	SpriteBatch batch;
 
 	// This is the socket for multiplayer
@@ -65,11 +70,31 @@ public class MultiplayerDemo extends ApplicationAdapter {
 		}
 	}
 
+	/**
+	 * If the player has moved and enough time has passed, update the server.
+	 * @param dt : how much time has passed between renders -- to be added to the timer
+	 */
+	public void updateServer(float dt) {
+		timer += dt;
+		if (timer >= UPDATE_TIME && playerStarship != null && playerStarship.hasMoved()) {
+			JSONObject data = new JSONObject();
+			try {
+				data.put("x", playerStarship.getX());
+				data.put("y", playerStarship.getY());
+				socket.emit("playerMoved", data);
+			} catch (JSONException e) {
+				Gdx.app.log("SOCKET.IO", "Error sending update data");
+			}
+		}
+	}
+
 	@Override
 	public void render () {
-		Gdx.gl.glClearColor(1, 0, 0, 1);
+		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		handleInput(Gdx.graphics.getDeltaTime());
+		updateServer(Gdx.graphics.getDeltaTime());
+
 		batch.begin();
 
 		// Draw the player starship if exists
@@ -186,8 +211,27 @@ public class MultiplayerDemo extends ApplicationAdapter {
 				} catch (JSONException e) {
 					Gdx.app.log("SocketIO", "Error updating a player's position.");
 				}
+
 			}
 
+		}).on("playerMoved", new Emitter.Listener() {
+			@Override
+			public void call(Object... args) {
+
+				// Get moved player's id.
+				JSONObject data = (JSONObject) args[0];
+				try {
+					String id = data.getString("id");
+					Double x = data.getDouble("x");
+					Double y = data.getDouble("y");
+					if (friendlyPlayersMap.get(id) != null) {
+						friendlyPlayersMap.get(id).setPosition(x.floatValue(), y.floatValue());
+					}
+				} catch (JSONException e) {
+					Gdx.app.log("SocketIO", "Error getting disconnected player's id");
+				}
+
+			}
 		});
 	}
 }
